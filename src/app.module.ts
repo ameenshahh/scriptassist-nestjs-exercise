@@ -9,15 +9,20 @@ import { TasksModule } from './modules/tasks/tasks.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { TaskProcessorModule } from './queues/task-processor/task-processor.module';
 import { ScheduledTasksModule } from './queues/scheduled-tasks/scheduled-tasks.module';
-import { CacheService } from './common/services/cache.service';
+import { CacheModule } from './common/services/cache.module';
+import { HealthModule } from './common/health/health.module';
 import jwtConfig from './config/jwt.config';
+import bullConfig from './config/bull.config';
+import { validate } from './config/env.validation';
 
 @Module({
   imports: [
     // Configuration
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [jwtConfig],
+      load: [jwtConfig, bullConfig],
+      validate,
+      envFilePath: ['.env.local', '.env'],
     }),
 
     // Database
@@ -41,22 +46,24 @@ import jwtConfig from './config/jwt.config';
     BullModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
-        connection: {
-          host: configService.get('REDIS_HOST'),
-          port: configService.get('REDIS_PORT'),
-          retryStrategy: (times: number) => {
-            if (times > 10) {
-              return null;
-            }
-            return Math.min(times * 100, 3000);
+      useFactory: (configService: ConfigService) => {
+        const bullConf = configService.get('bull');
+        return {
+          connection: {
+            ...bullConf.connection,
+            retryStrategy: (times: number) => {
+              if (times > 10) {
+                return null;
+              }
+              return Math.min(times * 100, 3000);
+            },
+            maxRetriesPerRequest: null,
+            enableReadyCheck: false,
+            lazyConnect: true,
+            showFriendlyErrorStack: true,
           },
-          maxRetriesPerRequest: null,
-          enableReadyCheck: false,
-          lazyConnect: true,
-          showFriendlyErrorStack: true,
-        },
-      }),
+        };
+      },
     }),
 
     // Rate limiting
@@ -71,6 +78,12 @@ import jwtConfig from './config/jwt.config';
       ]),
     }),
 
+    // Cache module (distributed Redis cache)
+    CacheModule,
+
+    // Health check module
+    HealthModule,
+
     // Feature modules
     UsersModule,
     TasksModule,
@@ -80,15 +93,7 @@ import jwtConfig from './config/jwt.config';
     TaskProcessorModule,
     ScheduledTasksModule,
   ],
-  providers: [
-    // Inefficient: Global cache service with no configuration options
-    // This creates a single in-memory cache instance shared across all modules
-    CacheService
-  ],
-  exports: [
-    // Exporting the cache service makes it available to other modules
-    // but creates tight coupling
-    CacheService
-  ]
+  providers: [],
+  exports: [],
 })
-export class AppModule { } 
+export class AppModule {} 
