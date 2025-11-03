@@ -10,7 +10,6 @@ function createContext(user: any): ExecutionContext {
 		}),
 		getHandler: () => ({} as any),
 		getClass: () => ({} as any),
-		// @ts-expect-error - not needed for this test
 		getType: () => 'http',
 	} as ExecutionContext;
 }
@@ -18,24 +17,21 @@ function createContext(user: any): ExecutionContext {
 describe('RolesGuard', () => {
 	it('allows access when no roles required', () => {
 		const reflector = new Reflector();
-		// @ts-expect-error - stub getAllAndOverride
-		reflector.getAllAndOverride = () => undefined;
+		(reflector as any).getAllAndOverride = () => undefined;
 		const guard = new RolesGuard(reflector);
 		expect(guard.canActivate(createContext({ role: 'user' }))).toBe(true);
 	});
 
 	it('allows access for matching role', () => {
 		const reflector = new Reflector();
-		// @ts-expect-error - stub getAllAndOverride
-		reflector.getAllAndOverride = () => ['admin'];
+		(reflector as any).getAllAndOverride = () => ['admin'];
 		const guard = new RolesGuard(reflector);
 		expect(guard.canActivate(createContext({ role: 'admin' }))).toBe(true);
 	});
 
 	it('denies access for non-matching role', () => {
 		const reflector = new Reflector();
-		// @ts-expect-error - stub getAllAndOverride
-		reflector.getAllAndOverride = () => ['admin'];
+		(reflector as any).getAllAndOverride = () => ['admin'];
 		const guard = new RolesGuard(reflector);
 		expect(() => guard.canActivate(createContext({ role: 'user' }))).toThrow(
 			ForbiddenException,

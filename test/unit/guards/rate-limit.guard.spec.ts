@@ -52,7 +52,6 @@ function createContext(ip: string): ExecutionContext {
 		}),
 		getHandler: () => ({} as any),
 		getClass: () => ({} as any),
-		// @ts-expect-error
 		getType: () => 'http',
 	} as ExecutionContext;
 }
