@@ -11,6 +11,7 @@ import { TaskProcessorModule } from './queues/task-processor/task-processor.modu
 import { ScheduledTasksModule } from './queues/scheduled-tasks/scheduled-tasks.module';
 import { CacheModule } from './common/services/cache.module';
 import { HealthModule } from './common/health/health.module';
+import { AppController } from './app.controller';
 import jwtConfig from './config/jwt.config';
 import bullConfig from './config/bull.config';
 import { validate } from './config/env.validation';
@@ -93,6 +94,7 @@ import { validate } from './config/env.validation';
     TaskProcessorModule,
     ScheduledTasksModule,
   ],
+  controllers: [AppController],
   providers: [],
   exports: [],
 })
