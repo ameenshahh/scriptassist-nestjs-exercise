@@ -85,7 +85,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
     // Remove sensitive fields from error response
     if (typeof exceptionResponse === 'object' && exceptionResponse !== null) {
-      const safeResponse = { ...exceptionResponse };
+      const safeResponse: Record<string, any> = { ...(exceptionResponse as any) };
       delete safeResponse.password;
       delete safeResponse.token;
       delete safeResponse.secret;

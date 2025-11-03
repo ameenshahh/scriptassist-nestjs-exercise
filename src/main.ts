@@ -68,7 +68,7 @@ async function bootstrap() {
   );
 
   // Global exception filter to remove sensitive data
-  app.useGlobalFilters(new HttpExceptionFilter());
+  app.useGlobalFilters(new HttpExceptionFilter(configService));
 
   // Swagger documentation
   if (configService.get('NODE_ENV') !== 'production') {
