@@ -14,7 +14,7 @@
     "skipLibCheck": true,
     "strict": true,
     "strictNullChecks": true,
-    "types": ["node", "jest"],
+    "types": ["node", "jest", "bun-types"],
     "strictPropertyInitialization": false,
     "noImplicitAny": true,
     "strictBindCallApply": true,
