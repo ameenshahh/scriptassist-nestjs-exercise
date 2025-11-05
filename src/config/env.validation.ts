@@ -115,7 +115,23 @@ class EnvironmentVariables {
 }
 
 export function validate(config: Record<string, unknown>) {
-  const validatedConfig = plainToInstance(EnvironmentVariables, config, {
+  // Convert string numbers to integers for numeric fields
+  const processedConfig = { ...config };
+  const numericFields = ['PORT', 'DB_PORT', 'REDIS_PORT', 'REDIS_DB', 'BCRYPT_ROUNDS', 'RATE_LIMIT_TTL', 'RATE_LIMIT_MAX'];
+  
+  for (const field of numericFields) {
+    if (processedConfig[field] !== undefined && processedConfig[field] !== null) {
+      const value = processedConfig[field];
+      if (typeof value === 'string') {
+        const parsed = parseInt(value, 10);
+        if (!isNaN(parsed)) {
+          processedConfig[field] = parsed;
+        }
+      }
+    }
+  }
+
+  const validatedConfig = plainToInstance(EnvironmentVariables, processedConfig, {
     enableImplicitConversion: true,
   });
 
